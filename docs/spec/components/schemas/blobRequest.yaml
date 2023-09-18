@@ -1,15 +1,15 @@
 allOf:
-  - $ref: '#/components/schemas/BlobKey'
+  - $ref: '#/components/schemas/blobKey'
   - type: object
     required:
       - attributes
     properties:
       attributes:
         type: object
+        required:
+          - value
         properties:
           value:
             description: arbitrary text
             type: string
             example: foobar
-        required:
-          - value

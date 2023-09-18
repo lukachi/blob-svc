@@ -6,10 +6,10 @@ allOf:
     properties:
       attributes:
         type: object
+        required:
+          - value
         properties:
           value:
             description: arbitrary text
             type: string
             example: foobar
-        required:
-          - value
