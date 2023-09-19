@@ -34,7 +34,7 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result := resources.BlobResponse{
-		Data: newBlobModel(blob),
+		Data: newBlobModel(*blob),
 	}
 
 	ape.Render(w, result)
