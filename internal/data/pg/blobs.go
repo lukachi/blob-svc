@@ -48,16 +48,16 @@ func (q *BlobsQ) Select() ([]data.Blob, error) {
 }
 
 func (q *BlobsQ) FilterById(id string) (*data.Blob, error) {
-	var result data.Blob
+	var result []data.Blob
 
 	err := q.db.Select(&result, q.sql.Where(squirrel.Eq{"id": id}))
 
-	return &result, err
+	return &result[0], err
 }
 
 func (q *BlobsQ) Insert(data data.Blob) (string, error) {
 	clauses := structs.Map(data)
-	var id string // FIXME: use uuidv4
+	var id string
 
 	stmt := squirrel.Insert(blobsTableName).SetMap(clauses).Suffix("returning id")
 	err := q.db.Get(&id, stmt)

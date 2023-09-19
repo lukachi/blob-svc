@@ -1,7 +1,7 @@
 -- +migrate Up
 CREATE TABLE blobs (
     id text primary key,
-    data bytea not null
+    value text not null
 );
 
 -- +migrate Down

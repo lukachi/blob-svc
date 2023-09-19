@@ -20,7 +20,7 @@ func newBlobModel(blob data.Blob) resources.Blob {
 	result := resources.Blob{
 		Key: resources.Key{
 			ID:           blob.ID,
-			ResourceType: "Blobs",
+			ResourceType: "blobs",
 		},
 		Attributes: resources.BlobAttributes{
 			Value: string(blob.Value),
@@ -34,6 +34,7 @@ func CreateBlob(w http.ResponseWriter, r *http.Request) {
 	request, err := NewCreateBlobRequest(r)
 
 	if err != nil {
+		Log(r).WithError(err).Error("failed to parse request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 		return
 	}
@@ -46,6 +47,7 @@ func CreateBlob(w http.ResponseWriter, r *http.Request) {
 	blob.ID, err = BlobsQ(r).Insert(blob)
 
 	if err != nil {
+		Log(r).WithError(err).Error("failed to insert blob")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}

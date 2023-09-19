@@ -19,7 +19,7 @@ func (s *service) router(cfg config.Config) chi.Router {
 			handlers.CtxBlobsQ(pg.NewBlobsQ(cfg.DB())),
 		),
 	)
-	r.Route("/integrations/blob-svc", func(r chi.Router) {
+	r.Route("/blob-svc", func(r chi.Router) {
 		// configure endpoints here
 		r.Get("/{id}", handlers.GetBlob)
 		r.Post("/", handlers.CreateBlob)
