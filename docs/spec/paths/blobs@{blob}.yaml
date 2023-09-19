@@ -26,19 +26,19 @@ get:
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/error'
+            $ref: '#/components/responses/badRequestError'
     '404':
       description: Blob not found
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/errors'
+            $ref: '#/components/responses/notFoundError'
     '500':
       description: failed to get blob
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/errors'
+            $ref: '#/components/responses/internalError'
 delete:
   tags:
     - blob
@@ -53,16 +53,16 @@ delete:
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/error'
+            $ref: '#/components/responses/badRequestError'
     '404':
       description: Blob not found
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/errors'
+            $ref: '#/components/responses/notFoundError'
     '500':
       description: Failed to get blob or failed to mark blob deleted
       content:
         application/vnd.api+json:
           schema:
-            $ref: '#/components/schemas/error'
+            $ref: '#/components/responses/internalError'

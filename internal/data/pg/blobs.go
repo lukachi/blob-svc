@@ -47,6 +47,14 @@ func (q *BlobsQ) Select() ([]data.Blob, error) {
 	return result, err
 }
 
+func (q *BlobsQ) FilterById(id string) (*data.Blob, error) {
+	var result data.Blob
+
+	err := q.db.Select(&result, q.sql.Where(squirrel.Eq{"id": id}))
+
+	return &result, err
+}
+
 func (q *BlobsQ) Insert(data data.Blob) (string, error) {
 	clauses := structs.Map(data)
 	var id string // FIXME: use uuidv4

@@ -1,0 +1,5 @@
+description: Not found error
+content:
+  application/vnd.api+json:
+    schema:
+      $ref: '#/components/schemas/commonErrors'

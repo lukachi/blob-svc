@@ -7,6 +7,9 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/fatih/structs v1.1.0
 	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/go-ozzo/ozzo-validation/v4 v4.2.1
+	github.com/google/uuid v1.3.1
+	github.com/pkg/errors v0.9.1
 	github.com/rubenv/sql-migrate v1.5.2
 	gitlab.com/distributed_lab/ape v1.7.1
 	gitlab.com/distributed_lab/kit v1.11.2
@@ -21,9 +24,7 @@ require (
 	github.com/getsentry/raven-go v0.2.0 // indirect
 	github.com/getsentry/sentry-go v0.7.0 // indirect
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
-	github.com/go-ozzo/ozzo-validation/v4 v4.2.1 // indirect
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7 // indirect
-	github.com/google/uuid v1.3.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jmoiron/sqlx v1.2.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
@@ -33,7 +34,6 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/pelletier/go-toml v1.2.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/afero v1.1.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
