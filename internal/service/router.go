@@ -21,8 +21,9 @@ func (s *service) router(cfg config.Config) chi.Router {
 	)
 	r.Route("/blob-svc", func(r chi.Router) {
 		// configure endpoints here
-		r.Get("/{id}", handlers.GetBlob)
 		r.Post("/", handlers.CreateBlob)
+		r.Get("/{id}", handlers.GetBlob)
+		r.Delete("/{id}", handlers.DeleteBlobById)
 	})
 
 	return r

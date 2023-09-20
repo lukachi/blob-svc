@@ -52,6 +52,10 @@ func (q *BlobsQ) FilterById(id string) (*data.Blob, error) {
 
 	err := q.db.Select(&result, q.sql.Where(squirrel.Eq{"id": id}))
 
+	if len(result) == 0 {
+		return nil, nil
+	}
+
 	return &result[0], err
 }
 
