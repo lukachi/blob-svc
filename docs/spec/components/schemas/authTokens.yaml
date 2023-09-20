@@ -1,0 +1,19 @@
+type: object
+required:
+  - attributes
+properties:
+  attributes:
+    type: object
+    description: Success authorized response
+    required:
+      - access_token
+      - refresh_token
+    properties:
+      access_token:
+          description: login
+          type: string
+          example: ...
+      refresh_token:
+          description: password
+          type: string
+          example: ...

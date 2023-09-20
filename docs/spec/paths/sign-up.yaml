@@ -1,7 +1,7 @@
 post:
   tags:
-    - blob
-  summary: Create a blob
+    - auth
+  summary: Create a user
   responses:
     '200':
       description: Success
@@ -9,11 +9,13 @@ post:
         application/json:
           schema:
             type: object
+            required:
+              - data
             properties:
               data:
                 type: object
                 required: true
-                $ref: '#/components/schemas/blob'
+                $ref: '#/components/schemas/authTokens'
     '400':
       description: Bad Request
       content:
@@ -21,7 +23,7 @@ post:
           schema:
             $ref: '#/components/responses/badRequestError'
     '500':
-      description: failed to save blob
+      description: failed to create user
       content:
         application/vnd.api+json:
           schema:
@@ -37,7 +39,7 @@ post:
             data:
               type: object
               required: true
-              $ref: '#/components/schemas/blobRequest'
+              $ref: '#/components/schemas/signUpRequest'
       application/xml:
         schema:
           type: object
@@ -45,5 +47,5 @@ post:
             data:
               type: object
               required: true
-              $ref: '#/components/schemas/blobRequest'
+              $ref: '#/components/schemas/signUpRequest'
     required: true

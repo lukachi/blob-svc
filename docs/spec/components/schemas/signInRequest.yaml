@@ -1,0 +1,19 @@
+allOf:
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - login
+          - password
+        properties:
+          login:
+            description: login
+            type: string
+            example: login
+          password:
+            description: password
+            type: string
+            example: password
