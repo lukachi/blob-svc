@@ -2,11 +2,13 @@ type: object
 required:
   - type
 properties:
+  type:
+    type: string
+    description: Blob type
+    enum:
+      - blob
+    example: blob
   id:
     type: string
     description: Blob id
     example: 1a2b-3c4d-5e6f-7g8h
-  type:
-    type: string
-    description: Blob type
-    example: blob

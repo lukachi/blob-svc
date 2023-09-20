@@ -19,8 +19,8 @@ type CreateBlobRequest struct {
 func newBlobModel(blob data.Blob) resources.Blob {
 	result := resources.Blob{
 		Key: resources.Key{
-			ID:           blob.ID,
-			ResourceType: "blobs",
+			ID:   blob.ID,
+			Type: "blobs",
 		},
 		Attributes: resources.BlobAttributes{
 			Value: string(blob.Value),
