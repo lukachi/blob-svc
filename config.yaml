@@ -14,3 +14,6 @@ cop:
   upstream: "http://..."
   service_name: blob-svc
   service_port: 80
+
+jwt:
+  secret: "Lorem Ipsum Dolor Sit Amet Concestetur Adipiscing Elit"

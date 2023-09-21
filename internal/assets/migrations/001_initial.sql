@@ -8,6 +8,7 @@ CREATE TABLE users (
     id text primary key not null,
     login text not null,
     password text not null,
+    salt text not null,
     username text not null
 );
 

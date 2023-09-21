@@ -12,15 +12,11 @@ import (
 	"net/http"
 )
 
-type CreateBlobRequest struct {
-	Value json.RawMessage `json:"value"`
-}
-
 func newBlobModel(blob data.Blob) resources.Blob {
 	result := resources.Blob{
 		Key: resources.Key{
 			ID:   blob.ID,
-			Type: "blobs",
+			Type: resources.BLOB,
 		},
 		Attributes: resources.BlobAttributes{
 			Value: string(blob.Value),
@@ -59,20 +55,20 @@ func CreateBlob(w http.ResponseWriter, r *http.Request) {
 	ape.Render(w, result)
 }
 
-func NewCreateBlobRequest(r *http.Request) (CreateBlobRequest, error) {
+func NewCreateBlobRequest(r *http.Request) (resources.BlobRequestAttributes, error) {
 	request := struct {
-		Data CreateBlobRequest `json:"data"`
+		Data resources.BlobRequest `json:"data"`
 	}{}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return request.Data, errors.Wrap(err, "failed to unmarshal")
+		return request.Data.Attributes, errors.Wrap(err, "failed to unmarshal")
 	}
 
-	return request.Data, request.Data.validate()
+	return request.Data.Attributes, validate(request.Data)
 }
 
-func (r CreateBlobRequest) validate() error {
+func validate(r resources.BlobRequest) error {
 	return validation.Errors{
-		"/data/attributes/value": validation.Validate(&r.Value, validation.Required),
+		"/data/attributes/value": validation.Validate(&r.Attributes.Value, validation.Required),
 	}.Filter()
 }

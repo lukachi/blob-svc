@@ -1,4 +1,5 @@
 allOf:
+  - $ref: '#/components/schemas/SignRequestKey'
   - type: object
     required:
       - attributes

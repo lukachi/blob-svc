@@ -1,0 +1,15 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  type:
+    type: string
+    description: The type of the resource
+    enum:
+      - SignRequest
+    example: SignRequest
+  id:
+    type: string
+    description: The unique identifier for the resource
+    example: 1

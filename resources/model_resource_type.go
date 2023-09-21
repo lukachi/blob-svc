@@ -8,6 +8,7 @@ type ResourceType string
 
 // List of ResourceType
 const (
-	AUTH_TOKENS ResourceType = "authTokens"
-	BLOB        ResourceType = "blob"
+	AUTH_TOKENS  ResourceType = "authTokens"
+	BLOB         ResourceType = "blob"
+	SIGN_REQUEST ResourceType = "SignRequest"
 )
