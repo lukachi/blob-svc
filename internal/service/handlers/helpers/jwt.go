@@ -41,7 +41,19 @@ func (j *JWT) New() JWTManager {
 }
 
 func (j *JWT) NewAccessToken(claims UserClaims) (string, error) {
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	newClaims := UserClaims{
+		Username: claims.Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt: &jwt.NumericDate{
+				Time: time.Now(),
+			},
+			ExpiresAt: &jwt.NumericDate{
+				Time: time.Now().Add(time.Minute * 30),
+			},
+		},
+	}
+
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, newClaims)
 
 	return accessToken.SignedString(j.signingKey)
 }
@@ -69,7 +81,7 @@ func (j *JWT) Gen(claims interface{}) (data.AuthTokens, error) {
 			Time: time.Now(),
 		},
 		ExpiresAt: &jwt.NumericDate{
-			Time: time.Now().Add(time.Minute * 15),
+			Time: time.Now().Add(time.Hour * 48),
 		},
 	}
 
