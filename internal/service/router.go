@@ -29,6 +29,7 @@ func (s *service) router(cfg config.Config) chi.Router {
 		r.Delete("/{id}", handlers.DeleteBlobById)
 
 		r.Post("/sign-up", handlers.SignUp)
+		r.Post("/sign-in", handlers.SignIn)
 	})
 
 	return r

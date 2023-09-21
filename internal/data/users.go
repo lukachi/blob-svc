@@ -5,7 +5,9 @@ type UsersQ interface {
 
 	Get() (*User, error)
 	Select() ([]User, error)
+
 	FilterById(id string) (*User, error)
+	FilterByLogin(login string) (*User, error)
 
 	Insert(data User) (string, error)
 	Delete(id ...string) error

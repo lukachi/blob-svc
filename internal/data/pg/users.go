@@ -52,6 +52,22 @@ func (q UsersQ) FilterById(id string) (*data.User, error) {
 
 	err := q.db.Select(&result, q.sql.Where(squirrel.Eq{"id": id}))
 
+	if len(result) == 0 {
+		return nil, nil
+	}
+
+	return &result[0], err
+}
+
+func (q UsersQ) FilterByLogin(login string) (*data.User, error) {
+	var result []data.User
+
+	err := q.db.Select(&result, q.sql.Where(squirrel.Eq{"login": login}))
+
+	if len(result) == 0 {
+		return nil, nil
+	}
+
 	return &result[0], err
 }
 
