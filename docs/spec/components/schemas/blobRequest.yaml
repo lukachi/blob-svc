@@ -13,3 +13,6 @@ allOf:
             description: arbitrary text
             type: string
             example: foobar
+    headers:
+      Authorization:
+        type: string

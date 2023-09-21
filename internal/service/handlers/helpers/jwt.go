@@ -8,6 +8,7 @@ import (
 )
 
 type UserClaims struct {
+	ID       string
 	Username string
 	jwt.RegisteredClaims
 }
@@ -42,7 +43,9 @@ func (j *JWT) New() JWTManager {
 
 func (j *JWT) NewAccessToken(claims UserClaims) (string, error) {
 	newClaims := UserClaims{
+		ID:       claims.ID,
 		Username: claims.Username,
+
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt: &jwt.NumericDate{
 				Time: time.Now(),

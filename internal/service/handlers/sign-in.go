@@ -46,6 +46,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authTokens, err := JWT(r).Gen(helpers.UserClaims{
+		ID:       user.ID,
 		Username: user.Username,
 	})
 

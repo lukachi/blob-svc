@@ -62,6 +62,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userClaims := helpers.UserClaims{
+		ID:       user.ID,
 		Username: user.Username,
 	}
 

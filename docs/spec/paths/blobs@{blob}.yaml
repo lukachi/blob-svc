@@ -5,6 +5,14 @@ parameters:
     required: true
     schema:
       type: string
+  - name: Authorization
+    in: header
+    description: |
+      A valid JWT token with the `create:blobs` scope.
+    required: true
+    schema:
+      type: string
+      example: Bearer <jwt>
 get:
   tags:
     - blob
