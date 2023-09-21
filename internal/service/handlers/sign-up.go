@@ -53,6 +53,20 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		Username: request.Username,
 	}
 
+	user2, err := UsersQ(r).FilterByLogin(request.Login)
+
+	if err != nil || user2 == nil {
+		Log(r).WithError(err).Error("failed to get user")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	if user2.Login == user.Login {
+		Log(r).WithError(err).Error("user already exists")
+		ape.RenderErr(w, problems.Conflict())
+		return
+	}
+
 	user.ID, err = UsersQ(r).Insert(user)
 
 	if err != nil {

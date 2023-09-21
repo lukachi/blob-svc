@@ -14,11 +14,19 @@ type GetBlobByIDRequest struct {
 }
 
 func GetBlob(w http.ResponseWriter, r *http.Request) {
-	req, err := NewGetBlobRequest(r)
+	req, headers, err := NewGetBlobRequest(r)
 
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to parse request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
+		return
+	}
+
+	userClaims, err := JWT(r).ParseAccessToken(headers.Get("Authorization"))
+
+	if err != nil {
+		Log(r).WithError(err).Error("Unauthorized")
+		ape.RenderErr(w, problems.Unauthorized())
 		return
 	}
 
@@ -36,6 +44,12 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if blob.Owner != userClaims.ID {
+		Log(r).WithError(err).Error("Unauthorized")
+		ape.RenderErr(w, problems.Unauthorized())
+		return
+	}
+
 	result := resources.BlobResponse{
 		Data: newBlobModel(*blob),
 	}
@@ -43,17 +57,19 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 	ape.Render(w, result)
 }
 
-func NewGetBlobRequest(r *http.Request) (GetBlobByIDRequest, error) {
+func NewGetBlobRequest(r *http.Request) (GetBlobByIDRequest, *http.Header, error) {
 	request := GetBlobByIDRequest{}
+
+	headers := r.Header
 
 	id := chi.URLParam(r, "id")
 
 	if _, err := uuid.Parse(id); err != nil {
 		Log(r).WithError(err).Error("Failed to parse id")
-		return request, err
+		return request, &headers, err
 	}
 
 	request.ID = id
 
-	return request, nil
+	return request, &headers, nil
 }

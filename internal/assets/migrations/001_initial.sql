@@ -1,7 +1,8 @@
 -- +migrate Up
 CREATE TABLE blobs (
     id text primary key not null,
-    value text not null
+    value text not null,
+    owner text not null
 );
 
 CREATE TABLE users (
