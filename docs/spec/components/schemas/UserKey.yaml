@@ -1,0 +1,15 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  type:
+    type: string
+    description: The type of the resource
+    enum:
+      - user
+    example: user
+  id:
+    type: string
+    description: The unique identifier for the resource
+    example: 1a2b-3c4d-5e6f-7g8h

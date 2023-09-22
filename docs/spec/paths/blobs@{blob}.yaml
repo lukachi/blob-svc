@@ -28,7 +28,12 @@ get:
             type: object
             properties:
               data:
-                $ref: '#/components/schemas/blob'
+                $ref: '#/components/schemas/getBlob'
+              included:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/User'
     '400':
       description: Invalid request
       content:

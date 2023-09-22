@@ -1,0 +1,42 @@
+allOf:
+  - $ref: '#/components/schemas/blobKey'
+  - type: object
+    required:
+      - attributes
+      - relationships
+    properties:
+      attributes:
+        type: object
+        required:
+          - value
+        properties:
+          value:
+            description: arbitrary text
+            type: string
+            example: foobar
+      relationships:
+        type: object
+        required:
+          - owner
+        properties:
+          owner:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: object
+                required:
+                  - type
+                  - id
+                properties:
+                  type:
+                    type: string
+                    description: Owner type
+                    enum:
+                      - user
+                    example: user
+                  id:
+                    type: string
+                    description: Owner id
+                    example: 1a2b-3c4d-5e6f-7g8h
