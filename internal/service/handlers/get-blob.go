@@ -3,14 +3,35 @@ package handlers
 import (
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
+	"github.com/lukachi/blob-svc/internal/data"
 	"github.com/lukachi/blob-svc/resources"
+	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
+	"gitlab.com/distributed_lab/urlval"
 	"net/http"
 )
 
-type GetBlobByIDRequest struct {
-	ID string
+func NewGetBlobModel(blob data.Blob) resources.GetBlob {
+	result := resources.GetBlob{
+		Key: resources.Key{
+			ID:   blob.ID,
+			Type: resources.BLOB,
+		},
+		Attributes: resources.GetBlobAttributes{
+			Value: string(blob.Value),
+		},
+		Relationships: resources.GetBlobRelationships{
+			Owner: resources.Relation{
+				Data: &resources.Key{
+					ID:   blob.Owner,
+					Type: resources.USER,
+				},
+			},
+		},
+	}
+
+	return result
 }
 
 func GetBlob(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +51,7 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	blob, err := BlobsQ(r).FilterById(req.ID)
+	blob, err := BlobsQ(r).FilterById(req.Id)
 
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to get blob")
@@ -39,7 +60,7 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if blob == nil {
-		Log(r).WithField("id", req.ID).Error("Blob not found")
+		Log(r).WithField("id", req.Id).Error("Blob not found")
 		ape.RenderErr(w, problems.NotFound())
 		return
 	}
@@ -50,15 +71,56 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := resources.BlobResponse{
-		Data: newBlobModel(*blob),
+	var response resources.GetBlobResponse
+
+	if !req.IncludeUser {
+		response = resources.GetBlobResponse{
+			Data: NewGetBlobModel(*blob),
+		}
+
+		ape.Render(w, response)
+
+		return
 	}
 
-	ape.Render(w, result)
+	user, err := UsersQ(r).FilterById(blob.Owner)
+
+	if err != nil {
+		Log(r).WithError(err).Error("Failed to get user for includes")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	userResponse := resources.User{
+		Key: resources.Key{
+			ID:   user.ID,
+			Type: resources.USER,
+		},
+		Attributes: resources.UserAttributes{
+			Username: user.Username,
+		},
+	}
+
+	includes := resources.Included{}
+
+	includes.Add(&userResponse)
+
+	response = resources.GetBlobResponse{
+		Data:     NewGetBlobModel(*blob),
+		Included: includes,
+	}
+
+	ape.Render(w, response)
 }
 
-func NewGetBlobRequest(r *http.Request) (GetBlobByIDRequest, *http.Header, error) {
-	request := GetBlobByIDRequest{}
+type GetBlobRequest struct {
+	Id          string `url:"-"`
+	IncludeUser bool   `include:"user"`
+}
+
+func NewGetBlobRequest(r *http.Request) (GetBlobRequest, *http.Header, error) {
+	/* because in generated resources response type == request type */
+	request := GetBlobRequest{}
 
 	headers := r.Header
 
@@ -69,7 +131,13 @@ func NewGetBlobRequest(r *http.Request) (GetBlobByIDRequest, *http.Header, error
 		return request, &headers, err
 	}
 
-	request.ID = id
+	err := urlval.Decode(r.URL.Query(), &request)
+
+	if err != nil {
+		return request, &headers, errors.Wrap(err, "failed to unmarshal")
+	}
+
+	request.Id = id
 
 	return request, &headers, nil
 }

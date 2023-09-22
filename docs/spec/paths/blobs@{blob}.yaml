@@ -13,6 +13,17 @@ parameters:
     schema:
       type: string
       example: Bearer <jwt>
+  - in: query
+    name: include
+    required: false
+    description: |
+      A comma separated list of related resources to include in the response.
+    schema:
+      type: array
+      items:
+        type: string
+        enum:
+          - user
 get:
   tags:
     - blob
