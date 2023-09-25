@@ -19,6 +19,7 @@ func (s *service) router(cfg config.Config) chi.Router {
 			handlers.CtxLog(s.log),
 			handlers.CtxBlobsQ(pg.NewBlobsQ(cfg.DB())),
 			handlers.CtxUsersQ(pg.NewUsersQ(cfg.DB())),
+			handlers.CtxSessionsQ(pg.NewSessionsQ(cfg.DB())),
 			handlers.CtxJWT(helpers.NewJwtManager([]byte(cfg.Secret()))),
 		),
 	)
@@ -30,6 +31,7 @@ func (s *service) router(cfg config.Config) chi.Router {
 
 		r.Post("/sign-up", handlers.SignUp)
 		r.Post("/sign-in", handlers.SignIn)
+		r.Post("/refresh", handlers.Refresh)
 	})
 
 	return r

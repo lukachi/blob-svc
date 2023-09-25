@@ -1,0 +1,51 @@
+post:
+  tags:
+    - auth
+  summary: Get new auth tokens
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: object
+                required: true
+                $ref: '#/components/schemas/authTokens'
+    '400':
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/responses/badRequestError'
+    '500':
+      description: failed to create user
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/responses/internalError'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              type: object
+              required: true
+              $ref: '#/components/schemas/RefreshRequest'
+      application/xml:
+        schema:
+          type: object
+          properties:
+            data:
+              type: object
+              required: true
+              $ref: '#/components/schemas/RefreshRequest'

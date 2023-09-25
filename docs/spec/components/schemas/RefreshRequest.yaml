@@ -1,0 +1,15 @@
+allOf:
+  - $ref: '#/components/schemas/signRequestKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - refresh_token
+        properties:
+          refresh_token:
+            description: Refresh Token
+            type: string
+            example: <refresh_token>

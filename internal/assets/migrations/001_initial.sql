@@ -13,8 +13,17 @@ CREATE TABLE users (
     username text not null
 );
 
+CREATE TABLE sessions (
+    id text primary key not null,
+    user_id text not null,
+    created_at timestamp not null,
+    expires_at timestamp not null
+);
+
 -- +migrate Down
 
 DROP TABLE blobs;
 
 DROP TABLE users;
+
+DROP TABLE sessions;

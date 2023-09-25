@@ -21,8 +21,6 @@ type JWTManager interface {
 	ParseAccessToken(accessToken string) (*UserClaims, error)
 	ParseRefreshToken(accessToken string) (*jwt.RegisteredClaims, error)
 
-	Refresh(refreshToken string) error
-
 	NewAccessToken(claims UserClaims) (string, error)
 	NewRefreshToken(claims jwt.RegisteredClaims) (string, error)
 }
@@ -121,9 +119,4 @@ func (j *JWT) ParseRefreshToken(refreshToken string) (*jwt.RegisteredClaims, err
 	})
 
 	return parsedAccessToken.Claims.(*jwt.RegisteredClaims), err
-}
-
-func (j *JWT) Refresh(refreshToken string) error {
-	//TODO implement me
-	panic("implement me")
 }

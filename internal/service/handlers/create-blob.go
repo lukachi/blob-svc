@@ -75,10 +75,10 @@ func NewCreateBlobRequest(r *http.Request) (resources.BlobRequestAttributes, *ht
 		return request.Data.Attributes, &headers, errors.Wrap(err, "failed to unmarshal")
 	}
 
-	return request.Data.Attributes, &headers, validate(request.Data)
+	return request.Data.Attributes, &headers, validateCreateBlobRequest(request.Data)
 }
 
-func validate(r resources.BlobRequest) error {
+func validateCreateBlobRequest(r resources.BlobRequest) error {
 	return validation.Errors{
 		"/data/attributes/value": validation.Validate(&r.Attributes.Value, validation.Required),
 	}.Filter()
