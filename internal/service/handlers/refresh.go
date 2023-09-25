@@ -71,6 +71,21 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hashedNewRefreshToken := sha256.Sum256([]byte(authTokens.RefreshToken))
+
+	_, err = SessionsQ(r).Insert(data.Session{
+		ID:        fmt.Sprintf("%x", hashedNewRefreshToken[:]),
+		UserID:    user.ID,
+		ExpiresAt: authTokens.ExpiresAt,
+		CreatedAt: authTokens.CreatedAt,
+	})
+
+	if err != nil {
+		Log(r).WithError(err).Error("failed to insert session")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	result := resources.AuthTokensResponse{
 		Data: newAuthTokensModel(&authTokens),
 	}

@@ -40,21 +40,7 @@ func (j *JWT) New() JWTManager {
 }
 
 func (j *JWT) NewAccessToken(claims UserClaims) (string, error) {
-	newClaims := UserClaims{
-		ID:       claims.ID,
-		Username: claims.Username,
-
-		RegisteredClaims: jwt.RegisteredClaims{
-			IssuedAt: &jwt.NumericDate{
-				Time: time.Now(),
-			},
-			ExpiresAt: &jwt.NumericDate{
-				Time: time.Now().Add(time.Minute * 30),
-			},
-		},
-	}
-
-	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, newClaims)
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	return accessToken.SignedString(j.signingKey)
 }
@@ -66,7 +52,21 @@ func (j *JWT) NewRefreshToken(claims jwt.RegisteredClaims) (string, error) {
 }
 
 func (j *JWT) Gen(claims interface{}) (data.AuthTokens, error) {
-	signedAccessToken, err := j.NewAccessToken(claims.(UserClaims))
+	newClaims := UserClaims{
+		ID:       claims.(UserClaims).ID,
+		Username: claims.(UserClaims).Username,
+
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt: &jwt.NumericDate{
+				Time: time.Now(),
+			},
+			ExpiresAt: &jwt.NumericDate{
+				Time: time.Now().Add(time.Minute * 30),
+			},
+		},
+	}
+
+	signedAccessToken, err := j.NewAccessToken(newClaims)
 
 	if err != nil {
 		log.Default().Fatal(err)
@@ -98,6 +98,8 @@ func (j *JWT) Gen(claims interface{}) (data.AuthTokens, error) {
 	return data.AuthTokens{
 		AccessToken:  signedAccessToken,
 		RefreshToken: signedRefreshToken,
+		CreatedAt:    newClaims.RegisteredClaims.IssuedAt.Time,
+		ExpiresAt:    newClaims.RegisteredClaims.ExpiresAt.Time,
 	}, nil
 }
 

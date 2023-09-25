@@ -23,4 +23,6 @@ type Session struct {
 type AuthTokens struct {
 	AccessToken  string
 	RefreshToken string
+	CreatedAt    time.Time
+	ExpiresAt    time.Time
 }

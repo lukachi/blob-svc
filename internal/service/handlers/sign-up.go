@@ -91,7 +91,10 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	hashedRefreshToken := sha256.Sum256([]byte(authTokens.RefreshToken))
 
 	_, err = SessionsQ(r).Insert(data.Session{
-		ID: fmt.Sprintf("%x", hashedRefreshToken[:]),
+		ID:        fmt.Sprintf("%x", hashedRefreshToken[:]),
+		UserID:    user.ID,
+		ExpiresAt: authTokens.ExpiresAt,
+		CreatedAt: authTokens.CreatedAt,
 	})
 
 	if err != nil {
