@@ -21,6 +21,40 @@ func DeleteBlobById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	isAccessTokenValid, userClaims, err := JWT(r).ParseAccessToken(r.Header.Get("Authorization"))
+
+	if err != nil {
+		Log(r).WithError(err).Error("failed to parse access token")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	if !isAccessTokenValid {
+		Log(r).WithError(err).Error("access token is not valid")
+		ape.RenderErr(w, problems.Unauthorized())
+		return
+	}
+
+	blob, err := BlobsQ(r).FilterById(req.ID)
+
+	if err != nil {
+		Log(r).WithError(err).Error("Failed to get blob")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	if blob == nil {
+		Log(r).WithField("id", req.ID).Error("Blob not found")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
+
+	if blob.OwnerId != userClaims.ID {
+		Log(r).WithError(err).Error("Unauthorized")
+		ape.RenderErr(w, problems.Unauthorized())
+		return
+	}
+
 	err = BlobsQ(r).Delete(req.ID)
 
 	if err != nil {

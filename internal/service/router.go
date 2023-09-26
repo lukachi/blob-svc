@@ -19,7 +19,6 @@ func (s *service) router(cfg config.Config) chi.Router {
 			handlers.CtxLog(s.log),
 			handlers.CtxBlobsQ(pg.NewBlobsQ(cfg.DB())),
 			handlers.CtxUsersQ(pg.NewUsersQ(cfg.DB())),
-			handlers.CtxSessionsQ(pg.NewSessionsQ(cfg.DB())),
 			handlers.CtxJWT(helpers.NewJwtManager([]byte(cfg.Secret()))),
 		),
 	)

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/lukachi/blob-svc/internal/data"
 	"github.com/lukachi/blob-svc/internal/service/handlers/helpers"
 	"github.com/lukachi/blob-svc/resources"
 	"github.com/pkg/errors"
@@ -46,28 +45,13 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authTokens, err := JWT(r).Gen(helpers.UserClaims{
+	authTokens, err := JWT(r).Gen(&helpers.UserClaims{
 		ID:       user.ID,
 		Username: user.Username,
 	})
 
 	if err != nil {
 		Log(r).WithError(err).Error("failed to generate auth tokens")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	hashedRefreshToken := sha256.Sum256([]byte(authTokens.RefreshToken))
-
-	_, err = SessionsQ(r).Insert(data.Session{
-		ID:        fmt.Sprintf("%x", hashedRefreshToken[:]),
-		UserID:    user.ID,
-		ExpiresAt: authTokens.ExpiresAt,
-		CreatedAt: authTokens.CreatedAt,
-	})
-
-	if err != nil {
-		Log(r).WithError(err).Error("failed to insert session")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}

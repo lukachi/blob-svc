@@ -16,10 +16,10 @@ type UserClaims struct {
 type JWTManager interface {
 	New() JWTManager
 
-	Gen(claims interface{}) (data.AuthTokens, error)
+	Gen(claims *UserClaims) (data.AuthTokens, error)
 
-	ParseAccessToken(accessToken string) (*UserClaims, error)
-	ParseRefreshToken(accessToken string) (*jwt.RegisteredClaims, error)
+	ParseAccessToken(accessToken string) (bool, *UserClaims, error)
+	ParseRefreshToken(accessToken string) (bool, *jwt.RegisteredClaims, error)
 
 	NewAccessToken(claims UserClaims) (string, error)
 	NewRefreshToken(claims jwt.RegisteredClaims) (string, error)
@@ -51,10 +51,10 @@ func (j *JWT) NewRefreshToken(claims jwt.RegisteredClaims) (string, error) {
 	return refreshToken.SignedString(j.signingKey)
 }
 
-func (j *JWT) Gen(claims interface{}) (data.AuthTokens, error) {
+func (j *JWT) Gen(claims *UserClaims) (data.AuthTokens, error) {
 	newClaims := UserClaims{
-		ID:       claims.(UserClaims).ID,
-		Username: claims.(UserClaims).Username,
+		ID:       claims.ID,
+		Username: claims.Username,
 
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt: &jwt.NumericDate{
@@ -98,27 +98,25 @@ func (j *JWT) Gen(claims interface{}) (data.AuthTokens, error) {
 	return data.AuthTokens{
 		AccessToken:  signedAccessToken,
 		RefreshToken: signedRefreshToken,
-		CreatedAt:    newClaims.RegisteredClaims.IssuedAt.Time,
-		ExpiresAt:    newClaims.RegisteredClaims.ExpiresAt.Time,
 	}, nil
 }
 
-func (j *JWT) ParseAccessToken(accessToken string) (*UserClaims, error) {
+func (j *JWT) ParseAccessToken(accessToken string) (bool, *UserClaims, error) {
 	var userClaims UserClaims
 
 	parsedAccessToken, err := jwt.ParseWithClaims(accessToken, &userClaims, func(token *jwt.Token) (interface{}, error) {
 		return j.signingKey, nil
 	})
 
-	return parsedAccessToken.Claims.(*UserClaims), err
+	return parsedAccessToken.Valid, parsedAccessToken.Claims.(*UserClaims), err
 }
 
-func (j *JWT) ParseRefreshToken(refreshToken string) (*jwt.RegisteredClaims, error) {
+func (j *JWT) ParseRefreshToken(refreshToken string) (bool, *jwt.RegisteredClaims, error) {
 	var registeredClaims jwt.RegisteredClaims
 
-	parsedAccessToken, err := jwt.ParseWithClaims(refreshToken, &registeredClaims, func(token *jwt.Token) (interface{}, error) {
+	parsedRefreshToken, err := jwt.ParseWithClaims(refreshToken, &registeredClaims, func(token *jwt.Token) (interface{}, error) {
 		return j.signingKey, nil
 	})
 
-	return parsedAccessToken.Claims.(*jwt.RegisteredClaims), err
+	return parsedRefreshToken.Valid, parsedRefreshToken.Claims.(*jwt.RegisteredClaims), err
 }

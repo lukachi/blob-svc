@@ -49,16 +49,6 @@ func UsersQ(r *http.Request) data.UsersQ {
 	return r.Context().Value(usersQCtxKey).(data.UsersQ).New()
 }
 
-func CtxSessionsQ(entry data.SessionsQ) func(context.Context) context.Context {
-	return func(ctx context.Context) context.Context {
-		return context.WithValue(ctx, sessionQCtxKey, entry)
-	}
-}
-
-func SessionsQ(r *http.Request) data.SessionsQ {
-	return r.Context().Value(sessionQCtxKey).(data.SessionsQ).New()
-}
-
 func CtxJWT(entry helpers.JWTManager) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
 		return context.WithValue(ctx, jwtQCtxKey, entry)

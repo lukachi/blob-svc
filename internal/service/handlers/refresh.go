@@ -1,11 +1,8 @@
 package handlers
 
 import (
-	"crypto/sha256"
 	"encoding/json"
-	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/lukachi/blob-svc/internal/data"
 	"github.com/lukachi/blob-svc/internal/service/handlers/helpers"
 	"github.com/lukachi/blob-svc/resources"
 	"github.com/pkg/errors"
@@ -24,29 +21,38 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedRefreshToken := sha256.Sum256([]byte(req.RefreshToken))
+	accessToken := r.Header.Get("Authorization")
 
-	session, err := SessionsQ(r).FilterById(fmt.Sprintf("%x", hashedRefreshToken[:]))
-
-	if err != nil {
-		Log(r).WithError(err).Error("failed to get session")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	if session == nil {
-		Log(r).WithError(err).Error("session not found")
-		ape.RenderErr(w, problems.NotFound())
-		return
-	}
-
-	if err := validateSession(session); err != nil {
-		Log(r).WithError(err).Error("session expired")
+	// TODO fix this
+	if accessToken == "" {
+		Log(r).WithError(err).Error("access token is not provided")
 		ape.RenderErr(w, problems.Unauthorized())
 		return
 	}
 
-	user, err := UsersQ(r).FilterById(session.UserID)
+	_, accessTokenClaims, err := JWT(r).ParseAccessToken(accessToken)
+
+	isRefreshTokenValid, refreshTokenClaims, err := JWT(r).ParseRefreshToken(req.RefreshToken)
+
+	if err != nil {
+		Log(r).WithError(err).Error("failed to parse refresh token")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
+	if !isRefreshTokenValid {
+		Log(r).WithError(err).Error("refresh token is not valid")
+		ape.RenderErr(w, problems.Unauthorized())
+		return
+	}
+
+	if time.Until(refreshTokenClaims.ExpiresAt.Time) > 30*time.Second {
+		Log(r).WithError(err).Error("refresh token is not refreshable now")
+		ape.RenderErr(w, problems.BadRequest(err)...)
+		return
+	}
+
+	user, err := UsersQ(r).FilterById(accessTokenClaims.ID)
 
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get user")
@@ -60,28 +66,13 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authTokens, err := JWT(r).Gen(helpers.UserClaims{
+	authTokens, err := JWT(r).Gen(&helpers.UserClaims{
 		ID:       user.ID,
 		Username: user.Username,
 	})
 
 	if err != nil {
 		Log(r).WithError(err).Error("failed to generate auth tokens")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	hashedNewRefreshToken := sha256.Sum256([]byte(authTokens.RefreshToken))
-
-	_, err = SessionsQ(r).Insert(data.Session{
-		ID:        fmt.Sprintf("%x", hashedNewRefreshToken[:]),
-		UserID:    user.ID,
-		ExpiresAt: authTokens.ExpiresAt,
-		CreatedAt: authTokens.CreatedAt,
-	})
-
-	if err != nil {
-		Log(r).WithError(err).Error("failed to insert session")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
@@ -109,12 +100,4 @@ func validateRefreshRequest(r resources.RefreshRequest) error {
 	return validation.Errors{
 		"/data/attributes/refresh_request": validation.Validate(&r.Attributes.RefreshToken, validation.Required),
 	}.Filter()
-}
-
-func validateSession(s *data.Session) error {
-	if time.Now().After(s.ExpiresAt) {
-		return errors.New("session expired")
-	}
-
-	return nil
 }

@@ -80,25 +80,10 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		Username: user.Username,
 	}
 
-	authTokens, err := JWT(r).Gen(userClaims)
+	authTokens, err := JWT(r).Gen(&userClaims)
 
 	if err != nil {
 		Log(r).WithError(err).Error("failed to generate auth tokens")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	hashedRefreshToken := sha256.Sum256([]byte(authTokens.RefreshToken))
-
-	_, err = SessionsQ(r).Insert(data.Session{
-		ID:        fmt.Sprintf("%x", hashedRefreshToken[:]),
-		UserID:    user.ID,
-		ExpiresAt: authTokens.ExpiresAt,
-		CreatedAt: authTokens.CreatedAt,
-	})
-
-	if err != nil {
-		Log(r).WithError(err).Error("failed to insert session")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
