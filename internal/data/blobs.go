@@ -12,7 +12,7 @@ type BlobsQ interface {
 }
 
 type Blob struct {
-	ID    string `db:"id" structs:"id"`
-	Value string `db:"value" structs:"value"`
-	Owner string `db:"owner" structs:"owner"`
+	ID      string `db:"id" structs:"id"`
+	Value   string `db:"value" structs:"value"`
+	OwnerId string `db:"owner_id" structs:"owner_id"`
 }

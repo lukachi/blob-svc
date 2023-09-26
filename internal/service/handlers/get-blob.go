@@ -24,7 +24,7 @@ func NewGetBlobModel(blob data.Blob) resources.GetBlob {
 		Relationships: resources.GetBlobRelationships{
 			Owner: resources.Relation{
 				Data: &resources.Key{
-					ID:   blob.Owner,
+					ID:   blob.OwnerId,
 					Type: resources.USER,
 				},
 			},
@@ -65,7 +65,7 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if blob.Owner != userClaims.ID {
+	if blob.OwnerId != userClaims.ID {
 		Log(r).WithError(err).Error("Unauthorized")
 		ape.RenderErr(w, problems.Unauthorized())
 		return
@@ -83,7 +83,7 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := UsersQ(r).FilterById(blob.Owner)
+	user, err := UsersQ(r).FilterById(blob.OwnerId)
 
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to get user for includes")

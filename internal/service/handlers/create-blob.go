@@ -44,9 +44,9 @@ func CreateBlob(w http.ResponseWriter, r *http.Request) {
 	}
 
 	blob := data.Blob{
-		ID:    uuid.NewString(),
-		Value: string(request.Value),
-		Owner: userClaims.ID,
+		ID:      uuid.NewString(),
+		Value:   string(request.Value),
+		OwnerId: userClaims.ID,
 	}
 
 	blob.ID, err = BlobsQ(r).Insert(blob)

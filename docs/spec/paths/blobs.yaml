@@ -48,11 +48,4 @@ post:
               $ref: '#/components/schemas/blobRequest'
     required: true
 parameters:
-  - name: Authorization
-    in: header
-    description: |
-      A valid JWT token with the `create:blobs` scope.
-    required: true
-    schema:
-      type: string
-      example: Bearer <jwt>
+  - $ref: "#/components/headers/Authorization"
