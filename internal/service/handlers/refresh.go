@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/lukachi/blob-svc/internal/service/handlers/helpers"
@@ -52,17 +53,17 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := UsersQ(r).FilterById(accessTokenClaims.ID)
+	user, err := UsersQ(r).FilterById(accessTokenClaims.ID).Get()
+
+	if err == sql.ErrNoRows || user == nil {
+		Log(r).WithError(err).Error("user not found")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
 
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get user")
 		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	if user == nil {
-		Log(r).WithError(err).Error("user not found")
-		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 

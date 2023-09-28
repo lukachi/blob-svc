@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/lukachi/blob-svc/internal/data"
@@ -57,17 +58,17 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	blob, err := BlobsQ(r).FilterById(req.Id)
+	blob, err := BlobsQ(r).FilterById(req.Id).Get()
+
+	if err == sql.ErrNoRows || blob == nil {
+		Log(r).WithField("id", req.Id).Error("Blob not found")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
 
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to get blob")
 		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	if blob == nil {
-		Log(r).WithField("id", req.Id).Error("Blob not found")
-		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
@@ -89,7 +90,13 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := UsersQ(r).FilterById(blob.OwnerId)
+	user, err := UsersQ(r).FilterById(blob.OwnerId).Get()
+
+	if err == sql.ErrNoRows || user == nil {
+		Log(r).WithField("id", blob.OwnerId).Error("User not found")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
 
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to get user for includes")

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"crypto/sha256"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -22,17 +23,17 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := UsersQ(r).FilterByLogin(request.Login)
+	user, err := UsersQ(r).FilterByLogin(request.Login).Get()
+
+	if err == sql.ErrNoRows || user == nil {
+		Log(r).WithError(err).Error("user not found")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
 
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get user")
 		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	if user == nil {
-		Log(r).WithError(err).Error("user not found")
-		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 

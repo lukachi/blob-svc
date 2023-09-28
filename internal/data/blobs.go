@@ -5,7 +5,7 @@ type BlobsQ interface {
 
 	Get() (*Blob, error)
 	Select() ([]Blob, error)
-	FilterById(id string) (*Blob, error)
+	FilterById(id string) BlobsQ
 
 	Insert(data Blob) (string, error)
 	Delete(id ...string) error

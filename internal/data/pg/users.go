@@ -23,11 +23,11 @@ type UsersQ struct {
 	sql squirrel.SelectBuilder
 }
 
-func (q UsersQ) New() data.UsersQ {
+func (q *UsersQ) New() data.UsersQ {
 	return NewUsersQ(q.db)
 }
 
-func (q UsersQ) Get() (*data.User, error) {
+func (q *UsersQ) Get() (*data.User, error) {
 	var user data.User
 
 	err := q.db.Get(&user, q.sql)
@@ -39,7 +39,7 @@ func (q UsersQ) Get() (*data.User, error) {
 	return &user, err
 }
 
-func (q UsersQ) Select() ([]data.User, error) {
+func (q *UsersQ) Select() ([]data.User, error) {
 	var result []data.User
 
 	err := q.db.Select(&result, q.sql)
@@ -47,31 +47,19 @@ func (q UsersQ) Select() ([]data.User, error) {
 	return result, err
 }
 
-func (q UsersQ) FilterById(id string) (*data.User, error) {
-	var result []data.User
+func (q *UsersQ) FilterById(id string) data.UsersQ {
+	q.sql = q.sql.Where(squirrel.Eq{"id": id})
 
-	err := q.db.Select(&result, q.sql.Where(squirrel.Eq{"id": id}))
-
-	if len(result) == 0 {
-		return nil, nil
-	}
-
-	return &result[0], err
+	return q
 }
 
-func (q UsersQ) FilterByLogin(login string) (*data.User, error) {
-	var result []data.User
+func (q *UsersQ) FilterByLogin(login string) data.UsersQ {
+	q.sql = q.sql.Where(squirrel.Eq{"login": login})
 
-	err := q.db.Select(&result, q.sql.Where(squirrel.Eq{"login": login}))
-
-	if len(result) == 0 {
-		return nil, nil
-	}
-
-	return &result[0], err
+	return q
 }
 
-func (q UsersQ) Insert(data data.User) (string, error) {
+func (q *UsersQ) Insert(data data.User) (string, error) {
 	clauses := structs.Map(data)
 	var id string
 
@@ -82,7 +70,7 @@ func (q UsersQ) Insert(data data.User) (string, error) {
 	return id, err
 }
 
-func (q UsersQ) Delete(id ...string) error {
+func (q *UsersQ) Delete(id ...string) error {
 	s := squirrel.Delete(usersTableName).Where(squirrel.Eq{"id": id})
 	err := q.db.Exec(s)
 

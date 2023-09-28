@@ -1,7 +1,6 @@
 package pg
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/Masterminds/squirrel"
 	"github.com/fatih/structs"
@@ -32,10 +31,6 @@ func (q *BlobsQ) Get() (*data.Blob, error) {
 
 	err := q.db.Get(&blob, q.sql)
 
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-
 	return &blob, err
 }
 
@@ -47,16 +42,10 @@ func (q *BlobsQ) Select() ([]data.Blob, error) {
 	return result, err
 }
 
-func (q *BlobsQ) FilterById(id string) (*data.Blob, error) {
-	var result []data.Blob
+func (q *BlobsQ) FilterById(id string) data.BlobsQ {
+	q.sql = q.sql.Where(squirrel.Eq{"id": id})
 
-	err := q.db.Select(&result, q.sql.Where(squirrel.Eq{"id": id}))
-
-	if len(result) == 0 {
-		return nil, nil
-	}
-
-	return &result[0], err
+	return q
 }
 
 func (q *BlobsQ) Insert(data data.Blob) (string, error) {

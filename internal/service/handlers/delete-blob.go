@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"gitlab.com/distributed_lab/ape"
@@ -35,17 +36,17 @@ func DeleteBlobById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	blob, err := BlobsQ(r).FilterById(req.ID)
+	blob, err := BlobsQ(r).FilterById(req.ID).Get()
+
+	if err == sql.ErrNoRows || blob == nil {
+		Log(r).WithField("id", req.ID).Error("Blob not found")
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
 
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to get blob")
 		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	if blob == nil {
-		Log(r).WithField("id", req.ID).Error("Blob not found")
-		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 

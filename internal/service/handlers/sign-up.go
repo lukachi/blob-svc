@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"crypto/sha256"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -53,17 +54,17 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		Username: request.Username,
 	}
 
-	user2, err := UsersQ(r).FilterByLogin(request.Login)
+	user2, err := UsersQ(r).FilterByLogin(request.Login).Get()
+
+	if err != nil && err != sql.ErrNoRows || user2 != nil {
+		Log(r).WithError(err).Error("user already exists")
+		ape.RenderErr(w, problems.Conflict())
+		return
+	}
 
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get user")
 		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	if user2 != nil && user2.Login == user.Login {
-		Log(r).WithError(err).Error("user already exists")
-		ape.RenderErr(w, problems.Conflict())
 		return
 	}
 
