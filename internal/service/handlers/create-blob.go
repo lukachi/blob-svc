@@ -27,7 +27,7 @@ func newBlobModel(blob data.Blob) resources.Blob {
 }
 
 func CreateBlob(w http.ResponseWriter, r *http.Request) {
-	request, headers, err := NewCreateBlobRequest(r)
+	request, err := NewCreateBlobRequest(r)
 
 	if err != nil {
 		Log(r).WithError(err).Error("failed to parse request")
@@ -35,19 +35,7 @@ func CreateBlob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isAccessTokenValid, userClaims, err := JWT(r).ParseAccessToken(headers.Get("Authorization"))
-
-	if err != nil {
-		Log(r).WithError(err).Error("failed to parse access token")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	if !isAccessTokenValid {
-		Log(r).WithError(err).Error("access token is not valid")
-		ape.RenderErr(w, problems.Unauthorized())
-		return
-	}
+	userClaims := UserClaim(r)
 
 	blob := data.Blob{
 		ID:      uuid.NewString(),
@@ -70,18 +58,16 @@ func CreateBlob(w http.ResponseWriter, r *http.Request) {
 	ape.Render(w, result)
 }
 
-func NewCreateBlobRequest(r *http.Request) (resources.BlobRequestAttributes, *http.Header, error) {
+func NewCreateBlobRequest(r *http.Request) (resources.BlobRequestAttributes, error) {
 	request := struct {
 		Data resources.BlobRequest `json:"data"`
 	}{}
 
-	headers := r.Header
-
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return request.Data.Attributes, &headers, errors.Wrap(err, "failed to unmarshal")
+		return request.Data.Attributes, errors.Wrap(err, "failed to unmarshal")
 	}
 
-	return request.Data.Attributes, &headers, validateCreateBlobRequest(request.Data)
+	return request.Data.Attributes, validateCreateBlobRequest(request.Data)
 }
 
 func validateCreateBlobRequest(r resources.BlobRequest) error {

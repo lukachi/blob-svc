@@ -36,7 +36,7 @@ func NewGetBlobModel(blob data.Blob) resources.GetBlob {
 }
 
 func GetBlob(w http.ResponseWriter, r *http.Request) {
-	req, headers, err := NewGetBlobRequest(r)
+	req, err := NewGetBlobRequest(r)
 
 	if err != nil {
 		Log(r).WithError(err).Error("Failed to parse request")
@@ -44,19 +44,7 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isAccessTokenValid, userClaims, err := JWT(r).ParseAccessToken(headers.Get("Authorization"))
-
-	if !isAccessTokenValid {
-		Log(r).WithError(err).Error("access token is not valid")
-		ape.RenderErr(w, problems.Unauthorized())
-		return
-	}
-
-	if err != nil {
-		Log(r).WithError(err).Error("failed to parse access token")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
+	userClaims := UserClaim(r)
 
 	blob, err := BlobsQ(r).FilterById(req.Id).Get()
 
@@ -131,26 +119,24 @@ type GetBlobRequest struct {
 	IncludeUser bool   `include:"user"`
 }
 
-func NewGetBlobRequest(r *http.Request) (GetBlobRequest, *http.Header, error) {
+func NewGetBlobRequest(r *http.Request) (GetBlobRequest, error) {
 	/* because in generated resources response type == request type */
 	request := GetBlobRequest{}
-
-	headers := r.Header
 
 	id := chi.URLParam(r, "id")
 
 	if _, err := uuid.Parse(id); err != nil {
 		Log(r).WithError(err).Error("Failed to parse id")
-		return request, &headers, err
+		return request, err
 	}
 
 	err := urlval.Decode(r.URL.Query(), &request)
 
 	if err != nil {
-		return request, &headers, errors.Wrap(err, "failed to unmarshal")
+		return request, errors.Wrap(err, "failed to unmarshal")
 	}
 
 	request.Id = id
 
-	return request, &headers, nil
+	return request, nil
 }

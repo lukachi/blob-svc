@@ -6,6 +6,7 @@ import (
 	"github.com/lukachi/blob-svc/internal/data/pg"
 	"github.com/lukachi/blob-svc/internal/service/handlers"
 	"github.com/lukachi/blob-svc/internal/service/handlers/helpers"
+	"github.com/lukachi/blob-svc/internal/service/handlers/middlewares"
 	"gitlab.com/distributed_lab/ape"
 )
 
@@ -24,9 +25,9 @@ func (s *service) router(cfg config.Config) chi.Router {
 	)
 	r.Route("/blob-svc", func(r chi.Router) {
 		// configure endpoints here
-		r.Post("/", handlers.CreateBlob)
-		r.Get("/{id}", handlers.GetBlob)
-		r.Delete("/{id}", handlers.DeleteBlobById)
+		r.With(middlewares.VerifyAccessToken()).Post("/", handlers.CreateBlob)
+		r.With(middlewares.VerifyAccessToken()).Get("/{id}", handlers.GetBlob)
+		r.With(middlewares.VerifyAccessToken()).Delete("/{id}", handlers.DeleteBlobById)
 
 		r.Post("/sign-up", handlers.SignUp)
 		r.Post("/sign-in", handlers.SignIn)
