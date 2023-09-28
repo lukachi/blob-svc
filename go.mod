@@ -45,7 +45,10 @@ require (
 	github.com/spf13/viper v1.3.2 // indirect
 	gitlab.com/distributed_lab/lorem v0.2.0 // indirect
 	gitlab.com/distributed_lab/running v0.0.0-20200706131153-4af0e83eb96c // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/crypto v0.13.0 // indirect
+	golang.org/x/net v0.15.0 // indirect
+	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/term v0.12.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

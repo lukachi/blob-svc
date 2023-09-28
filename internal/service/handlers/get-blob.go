@@ -46,15 +46,15 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 
 	isAccessTokenValid, userClaims, err := JWT(r).ParseAccessToken(headers.Get("Authorization"))
 
-	if err != nil {
-		Log(r).WithError(err).Error("failed to parse access token")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
 	if !isAccessTokenValid {
 		Log(r).WithError(err).Error("access token is not valid")
 		ape.RenderErr(w, problems.Unauthorized())
+		return
+	}
+
+	if err != nil {
+		Log(r).WithError(err).Error("failed to parse access token")
+		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 

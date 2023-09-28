@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"crypto/sha256"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	"github.com/lukachi/blob-svc/internal/data"
@@ -13,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
 
@@ -40,17 +39,12 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	salt := uuid.NewString()
-
-	hashedPassword := sha256.Sum256([]byte(request.Password))
-
-	password := fmt.Sprintf("%x", hashedPassword[:]) + salt
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 8)
 
 	user := data.User{
 		ID:       uuid.NewString(),
 		Login:    request.Login,
-		Password: password,
-		Salt:     salt,
+		Password: string(hashedPassword),
 		Username: request.Username,
 	}
 

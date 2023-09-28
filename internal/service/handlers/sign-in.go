@@ -1,16 +1,15 @@
 package handlers
 
 import (
-	"crypto/sha256"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/lukachi/blob-svc/internal/service/handlers/helpers"
 	"github.com/lukachi/blob-svc/resources"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
 
@@ -37,12 +36,9 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword := sha256.Sum256([]byte(request.Password))
-	password := fmt.Sprintf("%x", hashedPassword[:]) + user.Salt
-
-	if password != user.Password {
-		Log(r).WithError(err).Error("user not found")
-		ape.RenderErr(w, problems.NotFound())
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
+		Log(r).WithError(err).Error("invalid password")
+		ape.RenderErr(w, problems.Unauthorized())
 		return
 	}
 
