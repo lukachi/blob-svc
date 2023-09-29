@@ -25,9 +25,19 @@ func (s *service) router(cfg config.Config) chi.Router {
 	)
 	r.Route("/blob-svc", func(r chi.Router) {
 		// configure endpoints here
-		r.With(middlewares.VerifyAccessToken()).Post("/", handlers.CreateBlob)
-		r.With(middlewares.VerifyAccessToken()).Get("/{id}", handlers.GetBlob)
-		r.With(middlewares.VerifyAccessToken()).Delete("/{id}", handlers.DeleteBlobById)
+
+		r.With(middlewares.VerifyAccessToken()).Route("", func(r chi.Router) {
+			r.Post("/", handlers.CreateBlob)
+
+			r.With(middlewares.VerifyBlobOwner()).Route("", func(r chi.Router) {
+				r.Get("/{id}", handlers.GetBlob)
+				r.Delete("/{id}", handlers.DeleteBlobById)
+
+				r.Post("/submit", handlers.SubmitBlob)
+				r.Post("/submit/{id}/", handlers.SubmitBlobById)
+				r.Get("/submit/{id}/", handlers.GetSubmittedBlobById)
+			})
+		})
 
 		r.Post("/sign-up", handlers.SignUp)
 		r.Post("/sign-in", handlers.SignIn)

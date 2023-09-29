@@ -38,33 +38,7 @@ func NewGetBlobModel(blob data.Blob) resources.GetBlob {
 func GetBlob(w http.ResponseWriter, r *http.Request) {
 	req, err := NewGetBlobRequest(r)
 
-	if err != nil {
-		Log(r).WithError(err).Error("Failed to parse request")
-		ape.RenderErr(w, problems.BadRequest(err)...)
-		return
-	}
-
-	userClaims := UserClaim(r)
-
-	blob, err := BlobsQ(r).FilterById(req.Id).Get()
-
-	if err == sql.ErrNoRows || blob == nil {
-		Log(r).WithField("id", req.Id).Error("Blob not found")
-		ape.RenderErr(w, problems.NotFound())
-		return
-	}
-
-	if err != nil {
-		Log(r).WithError(err).Error("Failed to get blob")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	if blob.OwnerId != userClaims.ID {
-		Log(r).WithError(err).Error("Unauthorized")
-		ape.RenderErr(w, problems.Unauthorized())
-		return
-	}
+	blob := VerifiedBlob(r)
 
 	var response resources.GetBlobResponse
 

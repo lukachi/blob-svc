@@ -6,6 +6,7 @@ import (
 	"gitlab.com/distributed_lab/kit/copus/types"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/kit/pgdb"
+	"gitlab.com/tokend/horizon-connector"
 )
 
 type Config interface {
@@ -14,6 +15,7 @@ type Config interface {
 	types.Copuser
 	comfig.Listenerer
 	JWTer
+	Horizon() *horizon.Connector
 }
 
 type config struct {
@@ -23,6 +25,7 @@ type config struct {
 	comfig.Listenerer
 	getter kv.Getter
 	JWTer
+	horizon *horizon.Connector
 }
 
 func New(getter kv.Getter) Config {

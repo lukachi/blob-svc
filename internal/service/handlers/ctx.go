@@ -16,7 +16,8 @@ const (
 	blobsQCtxKey
 	usersQCtxKey
 	jwtQCtxKey
-	JWTUsersClaim
+	JWTUsersClaimCtxKey
+	VerifiedBlobCtxKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -60,5 +61,9 @@ func JWT(r *http.Request) helpers.JWTManager {
 }
 
 func UserClaim(r *http.Request) *helpers.UserClaims {
-	return r.Context().Value(JWTUsersClaim).(*helpers.UserClaims)
+	return r.Context().Value(JWTUsersClaimCtxKey).(*helpers.UserClaims)
+}
+
+func VerifiedBlob(r *http.Request) *data.Blob {
+	return r.Context().Value(VerifiedBlobCtxKey).(*data.Blob)
 }

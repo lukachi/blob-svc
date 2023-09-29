@@ -17,3 +17,6 @@ cop:
 
 jwt:
   secret: "Lorem Ipsum Dolor Sit Amet Concestetur Adipiscing Elit"
+
+horizon:
+  url: "http://localhost:8000/_/api/"

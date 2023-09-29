@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"gitlab.com/distributed_lab/ape"
@@ -15,34 +14,6 @@ type DeleteBlobByIdRequest struct {
 
 func DeleteBlobById(w http.ResponseWriter, r *http.Request) {
 	req, err := NewDeleteBlobByIdRequest(r)
-
-	if err != nil {
-		Log(r).WithError(err).Error("Failed to parse request")
-		ape.RenderErr(w, problems.BadRequest(err)...)
-		return
-	}
-
-	userClaims := UserClaim(r)
-
-	blob, err := BlobsQ(r).FilterById(req.ID).Get()
-
-	if err == sql.ErrNoRows || blob == nil {
-		Log(r).WithField("id", req.ID).Error("Blob not found")
-		ape.RenderErr(w, problems.NotFound())
-		return
-	}
-
-	if err != nil {
-		Log(r).WithError(err).Error("Failed to get blob")
-		ape.RenderErr(w, problems.InternalError())
-		return
-	}
-
-	if blob.OwnerId != userClaims.ID {
-		Log(r).WithError(err).Error("Unauthorized")
-		ape.RenderErr(w, problems.Unauthorized())
-		return
-	}
 
 	err = BlobsQ(r).Delete(req.ID)
 
