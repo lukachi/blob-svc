@@ -46,7 +46,6 @@ func (s *service) router(cfg config.Config) chi.Router {
 			r.Post("/", handlers.CreateBlob)
 			r.Post("/submit", handlers.SubmitBlob)
 			r.Get("/submitted/{id}", handlers.GetSubmittedBlobById)
-			r.Post("/submitted/{id}", handlers.SubmitBlobById)
 
 			r.Group(func(r chi.Router) {
 				r.Use(middlewares.VerifyBlobOwner())
