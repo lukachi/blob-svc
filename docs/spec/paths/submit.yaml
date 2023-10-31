@@ -1,0 +1,51 @@
+post:
+  tags:
+    - blob
+  summary: Create a blob and submit to blockchain
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: object
+                required: true
+                $ref: '#/components/schemas/blob'
+    '400':
+      description: Bad Request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/responses/badRequestError'
+    '500':
+      description: failed to save blob
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/responses/internalError'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              type: object
+              required: true
+              $ref: '#/components/schemas/blobRequest'
+      application/xml:
+        schema:
+          type: object
+          properties:
+            data:
+              type: object
+              required: true
+              $ref: '#/components/schemas/blobRequest'
+    required: true
+parameters:
+  - $ref: "#/components/headers/Authorization"

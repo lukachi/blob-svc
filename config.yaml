@@ -6,7 +6,7 @@ db:
   url: postgres://root:root@localhost/blobs?sslmode=disable
 
 listener:
-  addr: :8000
+  addr: :8001
 
 cop:
   disabled: true

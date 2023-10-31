@@ -17,8 +17,7 @@ func (c *config) Horizon() *horizon.Connector {
 	}
 
 	var config struct {
-		URL    url.URL `fig:"url,required"`
-		Signer keypair.Full
+		URL *url.URL `fig:"url,required"`
 	}
 
 	err := figure.
@@ -39,9 +38,9 @@ func (c *config) Horizon() *horizon.Connector {
 		panic(err)
 	}
 
-	config.Signer = kp
+	signer := kp
 
-	c.horizon = horizon.NewConnector(&config.URL).WithSigner(config.Signer)
+	c.horizon = horizon.NewConnector(config.URL).WithSigner(signer)
 
 	return c.horizon
 }

@@ -14,6 +14,7 @@ type ctxKey int
 const (
 	logCtxKey ctxKey = iota
 	blobsQCtxKey
+	horizonBlobsQCtxKey
 	usersQCtxKey
 	jwtQCtxKey
 	JWTUsersClaimCtxKey
@@ -48,6 +49,16 @@ func CtxUsersQ(entry data.UsersQ) func(context.Context) context.Context {
 
 func UsersQ(r *http.Request) data.UsersQ {
 	return r.Context().Value(usersQCtxKey).(data.UsersQ).New()
+}
+
+func CtxHorizonBLobsQ(entry data.HorizonBlobsQ) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, horizonBlobsQCtxKey, entry)
+	}
+}
+
+func HorizonBlobsQ(r *http.Request) data.HorizonBlobsQ {
+	return r.Context().Value(horizonBlobsQCtxKey).(data.HorizonBlobsQ).New()
 }
 
 func CtxJWT(entry helpers.JWTManager) func(context.Context) context.Context {
