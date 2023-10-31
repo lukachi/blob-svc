@@ -14,9 +14,11 @@ type ctxKey int
 const (
 	logCtxKey ctxKey = iota
 	blobsQCtxKey
+	horizonBlobsQCtxKey
 	usersQCtxKey
 	jwtQCtxKey
-	JWTUsersClaim
+	JWTUsersClaimCtxKey
+	VerifiedBlobCtxKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -49,6 +51,16 @@ func UsersQ(r *http.Request) data.UsersQ {
 	return r.Context().Value(usersQCtxKey).(data.UsersQ).New()
 }
 
+func CtxHorizonBLobsQ(entry data.HorizonBlobsQ) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, horizonBlobsQCtxKey, entry)
+	}
+}
+
+func HorizonBlobsQ(r *http.Request) data.HorizonBlobsQ {
+	return r.Context().Value(horizonBlobsQCtxKey).(data.HorizonBlobsQ).New()
+}
+
 func CtxJWT(entry helpers.JWTManager) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
 		return context.WithValue(ctx, jwtQCtxKey, entry)
@@ -60,5 +72,9 @@ func JWT(r *http.Request) helpers.JWTManager {
 }
 
 func UserClaim(r *http.Request) *helpers.UserClaims {
-	return r.Context().Value(JWTUsersClaim).(*helpers.UserClaims)
+	return r.Context().Value(JWTUsersClaimCtxKey).(*helpers.UserClaims)
+}
+
+func VerifiedBlob(r *http.Request) *data.Blob {
+	return r.Context().Value(VerifiedBlobCtxKey).(*data.Blob)
 }

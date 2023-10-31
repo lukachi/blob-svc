@@ -1,0 +1,58 @@
+parameters:
+  - name: blob
+    in: path
+    description: Blob ID
+    required: true
+    schema:
+      type: string
+  - in: query
+    name: include
+    required: false
+    description: |
+      A comma separated list of related resources to include in the response.
+    schema:
+      type: array
+      items:
+        type: string
+        enum:
+          - user
+  - $ref: "#/components/headers/Authorization"
+get:
+  tags:
+    - blob
+  summary: blob
+  description: Get a blob from horizon
+  operationId: getBlob
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/getBlob'
+              included:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/User'
+    '400':
+      description: Invalid request
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/responses/badRequestError'
+    '404':
+      description: Blob not found
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/responses/notFoundError'
+    '500':
+      description: failed to get blob
+      content:
+        application/vnd.api+json:
+          schema:
+            $ref: '#/components/responses/internalError'

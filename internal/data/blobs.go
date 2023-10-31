@@ -1,5 +1,9 @@
 package data
 
+import (
+	"gitlab.com/tokend/go/xdr"
+)
+
 type BlobsQ interface {
 	New() BlobsQ
 
@@ -9,6 +13,13 @@ type BlobsQ interface {
 
 	Insert(data Blob) (string, error)
 	Delete(id ...string) error
+}
+
+type HorizonBlobsQ interface {
+	New() HorizonBlobsQ
+
+	WriteBlob(blob *Blob) (xdr.Uint64, error)
+	GetBlob(string) (*Blob, error)
 }
 
 type Blob struct {

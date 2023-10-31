@@ -3,8 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"github.com/go-chi/chi"
-	"github.com/google/uuid"
-	"github.com/lukachi/blob-svc/internal/data"
 	"github.com/lukachi/blob-svc/resources"
 	"github.com/pkg/errors"
 	"gitlab.com/distributed_lab/ape"
@@ -13,32 +11,27 @@ import (
 	"net/http"
 )
 
-func NewGetBlobModel(blob data.Blob) resources.GetBlob {
-	result := resources.GetBlob{
-		Key: resources.Key{
-			ID:   blob.ID,
-			Type: resources.BLOB,
-		},
-		Attributes: resources.GetBlobAttributes{
-			Value: string(blob.Value),
-		},
-		Relationships: resources.GetBlobRelationships{
-			Owner: resources.Relation{
-				Data: &resources.Key{
-					ID:   blob.OwnerId,
-					Type: resources.USER,
-				},
-			},
-		},
+func GetSubmittedBlobById(w http.ResponseWriter, r *http.Request) {
+	req, err := NewGetSubmittedBlobRequest(r)
+
+	if err != nil {
+		Log(r).WithError(err).Error("Failed to parse request")
+		ape.RenderErr(w, problems.BadRequest(err)...)
+		return
 	}
 
-	return result
-}
+	blob, err := HorizonBlobsQ(r).GetBlob(req.Id)
 
-func GetBlob(w http.ResponseWriter, r *http.Request) {
-	req, err := NewGetBlobRequest(r)
+	if err != nil {
+		Log(r).WithError(err).Error("Failed to get blob")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
 
-	blob := VerifiedBlob(r)
+	if blob == nil {
+		ape.RenderErr(w, problems.NotFound())
+		return
+	}
 
 	var response resources.GetBlobResponse
 
@@ -88,20 +81,14 @@ func GetBlob(w http.ResponseWriter, r *http.Request) {
 	ape.Render(w, response)
 }
 
-type GetBlobRequest struct {
-	Id          string `url:"-"`
-	IncludeUser bool   `include:"user"`
-}
-
-func NewGetBlobRequest(r *http.Request) (GetBlobRequest, error) {
+func NewGetSubmittedBlobRequest(r *http.Request) (GetBlobRequest, error) {
 	/* because in generated resources response type == request type */
 	request := GetBlobRequest{}
 
 	id := chi.URLParam(r, "id")
 
-	if _, err := uuid.Parse(id); err != nil {
-		Log(r).WithError(err).Error("Failed to parse id")
-		return request, err
+	if id == "" {
+		return request, errors.New("id is required")
 	}
 
 	err := urlval.Decode(r.URL.Query(), &request)

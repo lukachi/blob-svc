@@ -31,7 +31,7 @@ func VerifyAccessToken() func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), handlers.JWTUsersClaim, userClaims)
+			ctx := context.WithValue(r.Context(), handlers.JWTUsersClaimCtxKey, userClaims)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
